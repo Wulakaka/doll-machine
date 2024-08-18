@@ -1,6 +1,6 @@
 import {Perf} from "r3f-perf";
 import {OrbitControls, useGLTF} from "@react-three/drei";
-import {Model} from "./Model.jsx";
+import {Machine} from "./Machine.jsx";
 
 export default function Experience() {
   const model = useGLTF('./model.glb');
@@ -14,7 +14,9 @@ export default function Experience() {
 
       <directionalLight castShadow position={[1, 2, 3]} intensity={4.5}/>
 
-      <Model />
+      <group position-y={-1}>
+        <Machine />
+      </group>
     </>
 
   )
