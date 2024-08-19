@@ -52,6 +52,22 @@ export function Model(props) {
         position={[0, 1.535, 0]}
       />
       <mesh
+        name="armB"
+        castShadow
+        receiveShadow
+        geometry={nodes.armB.geometry}
+        material={materials.arm}
+        position={[0, 1.673, 0]}
+      />
+      <mesh
+        name="armC"
+        castShadow
+        receiveShadow
+        geometry={nodes.armC.geometry}
+        material={materials.arm}
+        position={[0, 1.811, 0]}
+      />
+      <mesh
         name="clawB"
         castShadow
         receiveShadow
@@ -68,22 +84,6 @@ export function Model(props) {
         material={materials.arm}
         position={[0, 1.555, 0]}
         rotation={[Math.PI, -Math.PI / 3, 2.531]}
-      />
-      <mesh
-        name="armB"
-        castShadow
-        receiveShadow
-        geometry={nodes.armB.geometry}
-        material={materials.arm}
-        position={[0, 1.673, 0]}
-      />
-      <mesh
-        name="armC"
-        castShadow
-        receiveShadow
-        geometry={nodes.armC.geometry}
-        material={materials.arm}
-        position={[0, 1.811, 0]}
       />
     </group>
   )

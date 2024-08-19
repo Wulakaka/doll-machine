@@ -1,4 +1,8 @@
-import { RigidBody } from '@react-three/rapier'
+import {
+  RigidBody,
+  useRevoluteJoint,
+  useSphericalJoint,
+} from '@react-three/rapier'
 import { useGLTF } from '@react-three/drei'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
@@ -41,7 +45,7 @@ export default function Claw() {
   const clawA = useRef()
   const clawB = useRef()
   const clawC = useRef()
-  const clawBar = useRef()
+  const armA = useRef()
 
   const [pressUp, setPressUp] = useState(false)
   const [pressDown, setPressDown] = useState(false)
@@ -73,7 +77,7 @@ export default function Claw() {
           clawA: clawA.current.translation(),
           clawB: clawB.current.translation(),
           clawC: clawC.current.translation(),
-          armA: clawBar.current.translation(),
+          armA: armA.current.translation(),
         })
       }
     }
@@ -107,7 +111,7 @@ export default function Claw() {
 
   useFrame((state, delta) => {
     if (pressDown || pressUp || pressLeft || pressRight) {
-      const claw = [clawA, clawB, clawC, clawBar]
+      const claw = [clawA, clawB, clawC, armA]
       claw.forEach((child) => {
         const currentTranslation = child.current.translation()
         let deltaX = 0
@@ -142,7 +146,7 @@ export default function Claw() {
         { ref: clawA, name: 'clawA' },
         { ref: clawB, name: 'clawB' },
         { ref: clawC, name: 'clawC' },
-        { ref: clawBar, name: 'armA' },
+        { ref: armA, name: 'armA' },
       ]
       claw.forEach(({ ref, name }) => {
         const originalPosition = nodes[name].position
@@ -187,6 +191,27 @@ export default function Claw() {
       clawC.current?.setNextKinematicRotation(clawCRotation)
     }
   })
+
+  // useRevoluteJoint(clawA, armA, [
+  //   [0, 0, 0],
+  //   [0, 0, 0],
+  //   [0, 1, 0],
+  //   [0, 0.1],
+  // ])
+  //
+  // useRevoluteJoint(clawB, armA, [
+  //   [0, 0, 0],
+  //   [0, 0, 0],
+  //   [0, 1, 0],
+  //   [0, 0.1],
+  // ])
+  //
+  // useRevoluteJoint(clawC, armA, [
+  //   [0, 0, 0],
+  //   [0, 0, 0],
+  //   [0, 1, 0],
+  //   [0, 0.1],
+  // ])
 
   return (
     <group>
@@ -245,7 +270,7 @@ export default function Claw() {
         type="kinematicPosition"
         restitution={0.2}
         friction={0}
-        ref={clawBar}
+        ref={armA}
         position={[0, 1.535, 0]}
       >
         <mesh
