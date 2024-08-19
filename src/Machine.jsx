@@ -16,8 +16,48 @@ export function Machine(props) {
   const clawA = useRef()
   const clawB = useRef()
   const clawC = useRef()
+  const clawBar = useRef()
 
-  useFrame((state) => {
+  const [pressUp, setPressUp] = useState(false)
+  const [pressDown, setPressDown] = useState(false)
+  const [pressLeft, setPressLeft] = useState(false)
+  const [pressRight, setPressRight] = useState(false)
+
+  useEffect(() => {
+    const listener = (event) => {
+      if (event.key === 'ArrowLeft') {
+        setPressLeft(true)
+      } else if (event.key === 'ArrowRight') {
+        setPressRight(true)
+      } else if (event.key === 'ArrowUp') {
+        setPressUp(true)
+      } else if (event.key === 'ArrowDown') {
+        setPressDown(true)
+      }
+    }
+
+    const keyUpListener = (event) => {
+      if (event.key === 'ArrowLeft') {
+        setPressLeft(false)
+      } else if (event.key === 'ArrowRight') {
+        setPressRight(false)
+      } else if (event.key === 'ArrowUp') {
+        setPressUp(false)
+      } else if (event.key === 'ArrowDown') {
+        setPressDown(false)
+      }
+    }
+
+    window.addEventListener('keydown', listener)
+    window.addEventListener('keyup', keyUpListener)
+
+    return () => {
+      window.removeEventListener('keydown', listener)
+      window.removeEventListener('keyup', keyUpListener)
+    }
+  }, [])
+
+  useFrame((state, delta) => {
     const time = state.clock.getElapsedTime()
     const rotationZ = time * 0.5
     const rotationA = new THREE.Quaternion()
@@ -38,10 +78,39 @@ export function Machine(props) {
       new THREE.Euler(Math.PI, -Math.PI / 3, 2.531 + rotationZ),
     )
     clawC.current.setNextKinematicRotation(rotationC)
+
+    const claw = [clawA, clawB, clawC, clawBar]
+    claw.forEach((child) => {
+      const currentTranslation = child.current.translation()
+      let deltaX = 0
+      let deltaY = 0
+      const speed = 0.2
+      if (pressLeft) {
+        deltaX -= speed
+      }
+
+      if (pressRight) {
+        deltaX += speed
+      }
+
+      if (pressUp) {
+        deltaY -= speed
+      }
+
+      if (pressDown) {
+        deltaY += speed
+      }
+
+      child.current.setNextKinematicTranslation({
+        x: currentTranslation.x + deltaX * delta,
+        y: currentTranslation.y,
+        z: currentTranslation.z + deltaY * delta,
+      })
+    })
   })
 
   return (
-    <Physics debug={false} gravity={[0, -9.81, 0]}>
+    <Physics debug={true} gravity={[0, -9.81, 0]}>
       <RigidBody>
         <mesh scale={[0.1, 0.1, 0.1]} position={[0, 2, 0]}>
           <boxGeometry />
@@ -81,6 +150,7 @@ export function Machine(props) {
             type="kinematicPosition"
             ref={clawA}
             position={[0, 1.555, 0]}
+            colliders="trimesh"
           >
             <mesh
               name="clawA"
@@ -94,6 +164,7 @@ export function Machine(props) {
             type="kinematicPosition"
             ref={clawB}
             position={[0, 1.555, 0]}
+            colliders="trimesh"
           >
             <mesh
               name="clawB"
@@ -107,6 +178,7 @@ export function Machine(props) {
             type="kinematicPosition"
             ref={clawC}
             position={[0, 1.555, 0]}
+            colliders="trimesh"
           >
             <mesh
               name="clawC"
@@ -116,19 +188,24 @@ export function Machine(props) {
               material={materials.arm}
             />
           </RigidBody>
-          <mesh
-            name="Cube007"
-            castShadow
-            receiveShadow
-            geometry={nodes.Cube007.geometry}
-            material={materials.arm}
+          <RigidBody
+            type="kinematicPosition"
+            ref={clawBar}
             position={[0, 1.73, 0]}
-          />
+          >
+            <mesh
+              name="Cube007"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube007.geometry}
+              material={materials.arm}
+            />
+          </RigidBody>
         </group>
       </group>
 
       <Walls />
-      <Dolls />
+      {/*<Dolls />*/}
     </Physics>
   )
 }
