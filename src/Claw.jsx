@@ -20,7 +20,7 @@ tl.to(progress, {
   y: -0.4,
 })
 tl.to(progress, {
-  rotation: Math.PI / 8,
+  rotation: Math.PI / 6,
 })
 tl.to(progress, {
   y: 0,
@@ -53,7 +53,7 @@ export default function Claw() {
     clawA: { x: 0, y: 0, z: 0 },
     clawB: { x: 0, y: 0, z: 0 },
     clawC: { x: 0, y: 0, z: 0 },
-    Cube007: { x: 0, y: 0, z: 0 },
+    armA: { x: 0, y: 0, z: 0 },
   })
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function Claw() {
           clawA: clawA.current.translation(),
           clawB: clawB.current.translation(),
           clawC: clawC.current.translation(),
-          Cube007: clawBar.current.translation(),
+          armA: clawBar.current.translation(),
         })
       }
     }
@@ -142,7 +142,7 @@ export default function Claw() {
         { ref: clawA, name: 'clawA' },
         { ref: clawB, name: 'clawB' },
         { ref: clawC, name: 'clawC' },
-        { ref: clawBar, name: 'Cube007' },
+        { ref: clawBar, name: 'armA' },
       ]
       claw.forEach(({ ref, name }) => {
         const originalPosition = nodes[name].position
@@ -246,13 +246,13 @@ export default function Claw() {
         restitution={0.2}
         friction={0}
         ref={clawBar}
-        position={[0, 1.73, 0]}
+        position={[0, 1.535, 0]}
       >
         <mesh
-          name="Cube007"
+          name="armA"
           castShadow
           receiveShadow
-          geometry={nodes.Cube007.geometry}
+          geometry={nodes.armA.geometry}
           material={materials.arm}
         />
       </RigidBody>

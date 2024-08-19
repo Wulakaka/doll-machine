@@ -10,7 +10,7 @@ export default function Dolls() {
       const scale = (Math.random() * 0.5 + 0.5) * 0.007
       instances.push({
         key: `instance_${i}`,
-        position: [Math.random() - 0.5, 1 + i * 0.02, Math.random() - 0.5],
+        position: [Math.random() * 0.4, 1 + i * 0.04, -Math.random() * 0.4],
         rotation: [Math.random(), Math.random(), Math.random()],
         scale: [scale, scale, scale],
       })
