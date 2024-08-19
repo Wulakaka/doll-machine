@@ -12,7 +12,7 @@ export function Machine() {
   const { nodes, materials } = useGLTF('/model.glb')
 
   return (
-    <Physics debug={true} gravity={[0, -9.81, 0]} position={[0, -1, 0]}>
+    <Physics debug={false} gravity={[0, -9.81, 0]} position={[0, -1, 0]}>
       <RigidBody>
         <mesh scale={[0.1, 0.1, 0.1]} position={[0, 2, 0]}>
           <boxGeometry />
@@ -51,7 +51,7 @@ export function Machine() {
       </group>
 
       <Walls />
-      {/*<Dolls />*/}
+      <Dolls />
     </Physics>
   )
 }

@@ -12,9 +12,12 @@ const tl = gsap.timeline({
     progress.rotation = 0
     progress.positionReset = 0
   },
+  // onUpdate: () => {
+  //   console.log('reset', progress.positionReset)
+  // },
 })
 tl.to(progress, {
-  y: -0.5,
+  y: -0.4,
 })
 tl.to(progress, {
   rotation: Math.PI / 8,
@@ -24,6 +27,8 @@ tl.to(progress, {
 })
 tl.to(progress, {
   positionReset: 1,
+  duration: 2,
+  ease: 'none',
 })
 tl.to(progress, {
   rotation: 0,
@@ -44,6 +49,12 @@ export default function Claw() {
   const [pressRight, setPressRight] = useState(false)
 
   const [catching, setCatching] = useState(false)
+  const [positions, setPositions] = useState({
+    clawA: { x: 0, y: 0, z: 0 },
+    clawB: { x: 0, y: 0, z: 0 },
+    clawC: { x: 0, y: 0, z: 0 },
+    Cube007: { x: 0, y: 0, z: 0 },
+  })
 
   useEffect(() => {
     const keyDownListener = (event) => {
@@ -58,6 +69,12 @@ export default function Claw() {
       } else if (event.key === ' ') {
         tl.restart()
         setCatching(true)
+        setPositions({
+          clawA: clawA.current.translation(),
+          clawB: clawB.current.translation(),
+          clawC: clawC.current.translation(),
+          Cube007: clawBar.current.translation(),
+        })
       }
     }
 
@@ -130,21 +147,16 @@ export default function Claw() {
       claw.forEach(({ ref, name }) => {
         const originalPosition = nodes[name].position
 
-        const currentTranslation = ref.current.translation()
         const targetX = -0.3
-
-        let x = currentTranslation.x
-        if (progress.positionReset > 0) {
-          x = THREE.MathUtils.lerp(
-            currentTranslation.x,
-            targetX,
-            progress.positionReset,
-          )
-        }
+        const x = THREE.MathUtils.lerp(
+          positions[name].x,
+          targetX,
+          progress.positionReset,
+        )
 
         const targetZ = 0.3
         const z = THREE.MathUtils.lerp(
-          currentTranslation.z,
+          positions[name].z,
           targetZ,
           progress.positionReset,
         )
@@ -180,9 +192,12 @@ export default function Claw() {
     <group>
       <RigidBody
         type="kinematicPosition"
+        colliders="trimesh"
+        restitution={0.2}
+        friction={0}
         ref={clawA}
         position={[0, 1.555, 0]}
-        colliders="trimesh"
+        rotation={[0, 0, -0.611]}
       >
         <mesh
           name="clawA"
@@ -194,9 +209,12 @@ export default function Claw() {
       </RigidBody>
       <RigidBody
         type="kinematicPosition"
+        colliders="trimesh"
+        restitution={0.2}
+        friction={0}
         ref={clawB}
         position={[0, 1.555, 0]}
-        colliders="trimesh"
+        rotation={[Math.PI, Math.PI / 3, 2.531]}
       >
         <mesh
           name="clawB"
@@ -208,9 +226,12 @@ export default function Claw() {
       </RigidBody>
       <RigidBody
         type="kinematicPosition"
+        colliders="trimesh"
+        restitution={0.2}
+        friction={0}
         ref={clawC}
         position={[0, 1.555, 0]}
-        colliders="trimesh"
+        rotation={[Math.PI, -Math.PI / 3, 2.531]}
       >
         <mesh
           name="clawC"
@@ -220,7 +241,13 @@ export default function Claw() {
           material={materials.arm}
         />
       </RigidBody>
-      <RigidBody type="kinematicPosition" ref={clawBar} position={[0, 1.73, 0]}>
+      <RigidBody
+        type="kinematicPosition"
+        restitution={0.2}
+        friction={0}
+        ref={clawBar}
+        position={[0, 1.73, 0]}
+      >
         <mesh
           name="Cube007"
           castShadow
