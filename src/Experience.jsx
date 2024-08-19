@@ -14,7 +14,7 @@ export default function Experience() {
 
       <directionalLight castShadow position={[1, 2, 3]} intensity={4.5} />
 
-      <group position-y={-1}>
+      <group>
         <Machine />
       </group>
     </>

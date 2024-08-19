@@ -14,6 +14,9 @@ dependencies:
   '@react-three/rapier':
     specifier: ^1.4.0
     version: 1.4.0(@react-three/fiber@8.17.5)(react@18.3.1)(three@0.167.1)
+  gsap:
+    specifier: ^3.12.5
+    version: 3.12.5
   r3f-perf:
     specifier: ^7.2.1
     version: 7.2.1(@react-three/fiber@8.17.5)(@types/react@18.3.3)(@types/three@0.167.1)(react-dom@18.3.1)(react@18.3.1)(three@0.167.1)
@@ -1938,6 +1941,10 @@ packages:
   /graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
     dev: true
+
+  /gsap@3.12.5:
+    resolution: {integrity: sha512-srBfnk4n+Oe/ZnMIOXt3gT605BX9x5+rh/prT2F1SsNJsU1XuMiP0E2aptW481OnonOGACZWBqseH5Z7csHxhQ==}
+    dev: false
 
   /has-bigints@1.0.2:
     resolution: {integrity: sha512-tSvCKtBr9lkF0Ex0aQiP9N+OpV4zi2r/Nee5VkRDbaqv35RLYMzbwQfFSZZH0kR+Rd6302UJZ2p/bJCEoR3VoQ==}

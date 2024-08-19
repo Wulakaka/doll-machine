@@ -1,8 +1,34 @@
 import { RigidBody } from '@react-three/rapier'
 import { useGLTF } from '@react-three/drei'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import gsap from 'gsap'
+
+const progress = { y: 0, rotation: 0, positionReset: 0 }
+const tl = gsap.timeline({
+  onComplete: () => {
+    progress.y = 0
+    progress.rotation = 0
+    progress.positionReset = 0
+  },
+})
+tl.to(progress, {
+  y: -0.5,
+})
+tl.to(progress, {
+  rotation: Math.PI / 8,
+})
+tl.to(progress, {
+  y: 0,
+})
+tl.to(progress, {
+  positionReset: 1,
+})
+tl.to(progress, {
+  rotation: 0,
+})
+tl.pause()
 
 export default function Claw() {
   const { nodes, materials } = useGLTF('/model.glb')
@@ -17,8 +43,10 @@ export default function Claw() {
   const [pressLeft, setPressLeft] = useState(false)
   const [pressRight, setPressRight] = useState(false)
 
+  const [catching, setCatching] = useState(false)
+
   useEffect(() => {
-    const listener = (event) => {
+    const keyDownListener = (event) => {
       if (event.key === 'ArrowLeft') {
         setPressLeft(true)
       } else if (event.key === 'ArrowRight') {
@@ -27,6 +55,9 @@ export default function Claw() {
         setPressUp(true)
       } else if (event.key === 'ArrowDown') {
         setPressDown(true)
+      } else if (event.key === ' ') {
+        tl.restart()
+        setCatching(true)
       }
     }
 
@@ -42,69 +73,111 @@ export default function Claw() {
       }
     }
 
-    window.addEventListener('keydown', listener)
+    const tlCallback = () => {
+      setCatching(false)
+    }
+
+    window.addEventListener('keydown', keyDownListener)
     window.addEventListener('keyup', keyUpListener)
+    tl.add(tlCallback)
 
     return () => {
-      window.removeEventListener('keydown', listener)
+      window.removeEventListener('keydown', keyDownListener)
       window.removeEventListener('keyup', keyUpListener)
+      tl.remove(tlCallback)
     }
   }, [])
 
   useFrame((state, delta) => {
-    const time = state.clock.getElapsedTime()
-    const rotationZ = time * 0.5
-    const rotationA = new THREE.Quaternion()
-    // [0, 0, -0.611]
-    rotationA.setFromEuler(new THREE.Euler(0, 0, -0.611 + rotationZ))
-    clawA.current?.setNextKinematicRotation(rotationA)
+    if (pressDown || pressUp || pressLeft || pressRight) {
+      const claw = [clawA, clawB, clawC, clawBar]
+      claw.forEach((child) => {
+        const currentTranslation = child.current.translation()
+        let deltaX = 0
+        let deltaY = 0
+        const speed = 0.5
+        if (pressLeft) {
+          deltaX -= speed
+        }
 
-    const rotationB = new THREE.Quaternion()
-    // Math.PI, Math.PI / 3, 2.531
-    rotationB.setFromEuler(
-      new THREE.Euler(Math.PI, Math.PI / 3, 2.531 + rotationZ),
-    )
-    clawB.current?.setNextKinematicRotation(rotationB)
+        if (pressRight) {
+          deltaX += speed
+        }
 
-    const rotationC = new THREE.Quaternion()
-    // Math.PI, -Math.PI / 3, 2.531
-    rotationC.setFromEuler(
-      new THREE.Euler(Math.PI, -Math.PI / 3, 2.531 + rotationZ),
-    )
-    clawC.current?.setNextKinematicRotation(rotationC)
+        if (pressUp) {
+          deltaY -= speed
+        }
 
-    const claw = [clawA, clawB, clawC, clawBar]
-    claw.forEach((child) => {
-      const currentTranslation = child.current.translation()
-      let deltaX = 0
-      let deltaY = 0
-      const speed = 0.2
-      if (pressLeft) {
-        deltaX -= speed
-      }
+        if (pressDown) {
+          deltaY += speed
+        }
 
-      if (pressRight) {
-        deltaX += speed
-      }
-
-      if (pressUp) {
-        deltaY -= speed
-      }
-
-      if (pressDown) {
-        deltaY += speed
-      }
-
-      child.current.setNextKinematicTranslation({
-        x: currentTranslation.x + deltaX * delta,
-        y: currentTranslation.y,
-        z: currentTranslation.z + deltaY * delta,
+        child.current.setNextKinematicTranslation({
+          x: currentTranslation.x + deltaX * delta,
+          y: currentTranslation.y,
+          z: currentTranslation.z + deltaY * delta,
+        })
       })
-    })
+    }
+
+    if (catching) {
+      const claw = [
+        { ref: clawA, name: 'clawA' },
+        { ref: clawB, name: 'clawB' },
+        { ref: clawC, name: 'clawC' },
+        { ref: clawBar, name: 'Cube007' },
+      ]
+      claw.forEach(({ ref, name }) => {
+        const originalPosition = nodes[name].position
+
+        const currentTranslation = ref.current.translation()
+        const targetX = -0.3
+
+        let x = currentTranslation.x
+        if (progress.positionReset > 0) {
+          x = THREE.MathUtils.lerp(
+            currentTranslation.x,
+            targetX,
+            progress.positionReset,
+          )
+        }
+
+        const targetZ = 0.3
+        const z = THREE.MathUtils.lerp(
+          currentTranslation.z,
+          targetZ,
+          progress.positionReset,
+        )
+
+        ref.current.setNextKinematicTranslation({
+          x: x,
+          y: originalPosition.y + progress.y,
+          z: z,
+        })
+      })
+
+      const clawARotation = new THREE.Quaternion()
+      clawARotation.setFromEuler(
+        new THREE.Euler(0, 0, -0.611 + progress.rotation),
+      )
+      clawA.current?.setNextKinematicRotation(clawARotation)
+
+      const clawBRotation = new THREE.Quaternion()
+      clawBRotation.setFromEuler(
+        new THREE.Euler(Math.PI, Math.PI / 3, 2.531 + progress.rotation),
+      )
+      clawB.current?.setNextKinematicRotation(clawBRotation)
+
+      const clawCRotation = new THREE.Quaternion()
+      clawCRotation.setFromEuler(
+        new THREE.Euler(Math.PI, -Math.PI / 3, 2.531 + progress.rotation),
+      )
+      clawC.current?.setNextKinematicRotation(clawCRotation)
+    }
   })
 
   return (
-    <group position-y={-0.4}>
+    <group>
       <RigidBody
         type="kinematicPosition"
         ref={clawA}
