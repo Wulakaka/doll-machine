@@ -1,10 +1,6 @@
-import {
-  RigidBody,
-  useRevoluteJoint,
-  useSphericalJoint,
-} from '@react-three/rapier'
+import { RigidBody } from '@react-three/rapier'
 import { useGLTF } from '@react-three/drei'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import gsap from 'gsap'
@@ -16,9 +12,6 @@ const tl = gsap.timeline({
     progress.rotation = 0
     progress.positionReset = 0
   },
-  // onUpdate: () => {
-  //   console.log('reset', progress.positionReset)
-  // },
 })
 tl.to(progress, {
   y: -0.4,
@@ -39,8 +32,12 @@ tl.to(progress, {
 })
 tl.pause()
 
+const material = new THREE.MeshStandardMaterial({
+  color: 'hotpink',
+})
+
 export default function Claw() {
-  const { nodes, materials } = useGLTF('/model.glb')
+  const { nodes } = useGLTF('/model.glb')
 
   const clawA = useRef()
   const clawB = useRef()
@@ -192,27 +189,6 @@ export default function Claw() {
     }
   })
 
-  // useRevoluteJoint(clawA, armA, [
-  //   [0, 0, 0],
-  //   [0, 0, 0],
-  //   [0, 1, 0],
-  //   [0, 0.1],
-  // ])
-  //
-  // useRevoluteJoint(clawB, armA, [
-  //   [0, 0, 0],
-  //   [0, 0, 0],
-  //   [0, 1, 0],
-  //   [0, 0.1],
-  // ])
-  //
-  // useRevoluteJoint(clawC, armA, [
-  //   [0, 0, 0],
-  //   [0, 0, 0],
-  //   [0, 1, 0],
-  //   [0, 0.1],
-  // ])
-
   return (
     <group>
       <RigidBody
@@ -229,7 +205,7 @@ export default function Claw() {
           castShadow
           receiveShadow
           geometry={nodes.clawA.geometry}
-          material={materials.arm}
+          material={material}
         />
       </RigidBody>
       <RigidBody
@@ -246,7 +222,7 @@ export default function Claw() {
           castShadow
           receiveShadow
           geometry={nodes.clawB.geometry}
-          material={materials.arm}
+          material={material}
         />
       </RigidBody>
       <RigidBody
@@ -263,7 +239,7 @@ export default function Claw() {
           castShadow
           receiveShadow
           geometry={nodes.clawC.geometry}
-          material={materials.arm}
+          material={material}
         />
       </RigidBody>
       <RigidBody
@@ -278,7 +254,7 @@ export default function Claw() {
           castShadow
           receiveShadow
           geometry={nodes.armA.geometry}
-          material={materials.arm}
+          material={material}
         />
       </RigidBody>
     </group>
