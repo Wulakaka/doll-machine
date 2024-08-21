@@ -1,5 +1,5 @@
 import { RigidBody } from '@react-three/rapier'
-import { useGLTF } from '@react-three/drei'
+import { useGLTF, useKeyboardControls } from '@react-three/drei'
 import { useEffect, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -44,10 +44,7 @@ export default function Claw() {
   const clawC = useRef()
   const armA = useRef()
 
-  const [pressUp, setPressUp] = useState(false)
-  const [pressDown, setPressDown] = useState(false)
-  const [pressLeft, setPressLeft] = useState(false)
-  const [pressRight, setPressRight] = useState(false)
+  const [subscribeKeys, getKeys] = useKeyboardControls()
 
   const [catching, setCatching] = useState(false)
   const [positions, setPositions] = useState({
@@ -57,17 +54,10 @@ export default function Claw() {
     armA: { x: 0, y: 0, z: 0 },
   })
 
-  useEffect(() => {
-    const keyDownListener = (event) => {
-      if (event.key === 'ArrowLeft') {
-        setPressLeft(true)
-      } else if (event.key === 'ArrowRight') {
-        setPressRight(true)
-      } else if (event.key === 'ArrowUp') {
-        setPressUp(true)
-      } else if (event.key === 'ArrowDown') {
-        setPressDown(true)
-      } else if (event.key === ' ') {
+  subscribeKeys(
+    (state) => state.grab,
+    (value) => {
+      if (value) {
         tl.restart()
         setCatching(true)
         setPositions({
@@ -77,66 +67,41 @@ export default function Claw() {
           armA: armA.current.translation(),
         })
       }
-    }
+    },
+  )
 
-    const keyUpListener = (event) => {
-      if (event.key === 'ArrowLeft') {
-        setPressLeft(false)
-      } else if (event.key === 'ArrowRight') {
-        setPressRight(false)
-      } else if (event.key === 'ArrowUp') {
-        setPressUp(false)
-      } else if (event.key === 'ArrowDown') {
-        setPressDown(false)
-      }
-    }
-
+  useEffect(() => {
     const tlCallback = () => {
       setCatching(false)
     }
-
-    window.addEventListener('keydown', keyDownListener)
-    window.addEventListener('keyup', keyUpListener)
     tl.add(tlCallback)
-
     return () => {
-      window.removeEventListener('keydown', keyDownListener)
-      window.removeEventListener('keyup', keyUpListener)
       tl.remove(tlCallback)
     }
   }, [])
 
   useFrame((state, delta) => {
-    if (pressDown || pressUp || pressLeft || pressRight) {
-      const claw = [clawA, clawB, clawC, armA]
-      claw.forEach((child) => {
-        const currentTranslation = child.current.translation()
-        let deltaX = 0
-        let deltaY = 0
-        const speed = 0.5
-        if (pressLeft) {
-          deltaX -= speed
-        }
+    const { forward, backward, leftward, rightward } = getKeys()
 
-        if (pressRight) {
-          deltaX += speed
-        }
+    const claw = [clawA, clawB, clawC, armA]
+    claw.forEach((child) => {
+      const translation = child.current.translation()
+      const strength = 0.3 * delta
+      if (forward) {
+        translation.z -= strength
+      }
+      if (backward) {
+        translation.z += strength
+      }
+      if (leftward) {
+        translation.x -= strength
+      }
+      if (rightward) {
+        translation.x += strength
+      }
 
-        if (pressUp) {
-          deltaY -= speed
-        }
-
-        if (pressDown) {
-          deltaY += speed
-        }
-
-        child.current.setNextKinematicTranslation({
-          x: currentTranslation.x + deltaX * delta,
-          y: currentTranslation.y,
-          z: currentTranslation.z + deltaY * delta,
-        })
-      })
-    }
+      child.current.setNextKinematicTranslation(translation)
+    })
 
     if (catching) {
       const claw = [
