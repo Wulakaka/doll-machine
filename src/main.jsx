@@ -8,11 +8,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <KeyboardControls
       map={[
-        { name: 'forward', keys: ['KeyW', 'ArrowUp'] },
-        { name: 'backward', keys: ['KeyS', 'ArrowDown'] },
-        { name: 'leftward', keys: ['KeyA', 'ArrowLeft'] },
-        { name: 'rightward', keys: ['KeyD', 'ArrowRight'] },
-        { name: 'grab', keys: ['Space'] },
+        { name: 'forward', keys: ['KeyW', 'ArrowUp', 'GamepadButton12'] }, // GamepadButton12 is the D-pad up button
+        { name: 'backward', keys: ['KeyS', 'ArrowDown', 'GamepadButton13'] }, // GamepadButton13 is the D-pad down button
+        { name: 'leftward', keys: ['KeyA', 'ArrowLeft', 'GamepadButton14'] }, // GamepadButton14 is the D-pad left button
+        { name: 'rightward', keys: ['KeyD', 'ArrowRight', 'GamepadButton15'] }, // GamepadButton15 is the D-pad right button
+        { name: 'grab', keys: ['Space', 'GamepadButton0'] }, // GamepadButton0 is the A button
       ]}
     >
       <App />

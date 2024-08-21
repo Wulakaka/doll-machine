@@ -54,21 +54,25 @@ export default function Claw() {
     armA: { x: 0, y: 0, z: 0 },
   })
 
-  subscribeKeys(
-    (state) => state.grab,
-    (value) => {
-      if (value) {
-        tl.restart()
-        setCatching(true)
-        setPositions({
-          clawA: clawA.current.translation(),
-          clawB: clawB.current.translation(),
-          clawC: clawC.current.translation(),
-          armA: armA.current.translation(),
-        })
-      }
-    },
-  )
+  useEffect(() => {
+    const unsubscribe = subscribeKeys(
+      (state) => state.grab,
+      (value) => {
+        if (value) {
+          tl.restart()
+          setCatching(true)
+          setPositions({
+            clawA: clawA.current.translation(),
+            clawB: clawB.current.translation(),
+            clawC: clawC.current.translation(),
+            armA: armA.current.translation(),
+          })
+        }
+      },
+    )
+
+    return () => unsubscribe()
+  })
 
   useEffect(() => {
     const tlCallback = () => {
